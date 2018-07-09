@@ -20,73 +20,76 @@ namespace Nest.Resolvers
 		public IConnectionSettingsValues ConnectionSettings { get; private set; }
 
 		public ElasticContractResolver(IConnectionSettingsValues connectionSettings)
-			: base(true)
 		{
 			this.ConnectionSettings = connectionSettings;
 		}
 
 		protected override JsonContract CreateContract(Type objectType)
 		{
-			JsonContract contract = base.CreateContract(objectType);
-
-			// this will only be called once and then cached
-
-			if (objectType == typeof(IDictionary<string, AnalyzerBase>))
-				contract.Converter = new AnalyzerCollectionConverter();
-
-			else if (objectType == typeof(IDictionary<string, TokenFilterBase>))
-				contract.Converter = new TokenFilterCollectionConverter();
-
-			else if (objectType == typeof(IDictionary<string, TokenizerBase>))
-				contract.Converter = new TokenizerCollectionConverter();
-
-			else if (objectType == typeof(IDictionary<string, CharFilterBase>))
-				contract.Converter = new CharFilterCollectionConverter();
-
-			else if (typeof(IDictionary).IsAssignableFrom(objectType))
-				contract.Converter = new DictionaryKeysAreNotPropertyNamesJsonConverter();
-
-			else if (objectType == typeof(Facet))
-				contract.Converter = new FacetConverter();
-			
-			else if (objectType == typeof(IAggregation))
-				contract.Converter = new AggregationConverter();
-			
-			else if (objectType == typeof(DateTime) || objectType == typeof(DateTime?))
-				contract.Converter = new IsoDateTimeConverter() { Culture = CultureInfo.InvariantCulture };
-
-			else if (typeof(IHit<object>).IsAssignableFrom(objectType))
-				contract.Converter = new DefaultHitConverter();
-
-			else if (objectType == typeof(MultiGetResponse))
-				contract.Converter = new MultiGetHitConverter();
-
-			else if (objectType == typeof(PropertyNameMarker))
-				contract.Converter = new PropertyNameMarkerConverter(this.ConnectionSettings);
-			
-			else if (objectType == typeof(PropertyPathMarker))
-				contract.Converter = new PropertyPathMarkerConverter(this.ConnectionSettings);
-
-			else if (objectType == typeof(SuggestResponse))
-				contract.Converter = new SuggestResponseConverter();
-
-			else if (objectType == typeof(MultiSearchResponse))
-				contract.Converter = new MultiSearchConverter();
-
-
-			if (this.ConnectionSettings.ContractConverters.HasAny())
+			// cache contracts per connection settings
+			return this.ConnectionSettings.Inferrer.Contracts.GetOrAdd(objectType, o =>
 			{
-				foreach (var c in this.ConnectionSettings.ContractConverters)
-				{
-					var converter = c(objectType);
-					if (converter == null)
-						continue;
-					contract.Converter = converter;
-					break;
-				}
-			}
+				JsonContract contract = base.CreateContract(o);
 
-			return contract;
+				// this will only be called once and then cached
+
+				if (o == typeof(IDictionary<string, AnalyzerBase>))
+					contract.Converter = new AnalyzerCollectionConverter();
+
+				else if (o == typeof(IDictionary<string, TokenFilterBase>))
+					contract.Converter = new TokenFilterCollectionConverter();
+
+				else if (o == typeof(IDictionary<string, TokenizerBase>))
+					contract.Converter = new TokenizerCollectionConverter();
+
+				else if (o == typeof(IDictionary<string, CharFilterBase>))
+					contract.Converter = new CharFilterCollectionConverter();
+
+				else if (typeof(IDictionary).IsAssignableFrom(o))
+					contract.Converter = new DictionaryKeysAreNotPropertyNamesJsonConverter();
+
+				else if (o == typeof(Facet))
+					contract.Converter = new FacetConverter();
+
+				else if (o == typeof(IAggregation))
+					contract.Converter = new AggregationConverter();
+
+				else if (o == typeof(DateTime) || o == typeof(DateTime?))
+					contract.Converter = new IsoDateTimeConverter() {Culture = CultureInfo.InvariantCulture};
+
+				else if (typeof(IHit<object>).IsAssignableFrom(o))
+					contract.Converter = new DefaultHitConverter();
+
+				else if (o == typeof(MultiGetResponse))
+					contract.Converter = new MultiGetHitConverter();
+
+				else if (o == typeof(PropertyNameMarker))
+					contract.Converter = new PropertyNameMarkerConverter(this.ConnectionSettings);
+
+				else if (o == typeof(PropertyPathMarker))
+					contract.Converter = new PropertyPathMarkerConverter(this.ConnectionSettings);
+
+				else if (o == typeof(SuggestResponse))
+					contract.Converter = new SuggestResponseConverter();
+
+				else if (o == typeof(MultiSearchResponse))
+					contract.Converter = new MultiSearchConverter();
+
+
+				if (this.ConnectionSettings.ContractConverters.HasAny())
+				{
+					foreach (var c in this.ConnectionSettings.ContractConverters)
+					{
+						var converter = c(o);
+						if (converter == null)
+							continue;
+						contract.Converter = converter;
+						break;
+					}
+				}
+
+				return contract;
+			});
 		}
 
 		protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)

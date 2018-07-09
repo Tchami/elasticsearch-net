@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Nest.Resolvers;
+using Newtonsoft.Json.Serialization;
 
 namespace Nest
 {
@@ -35,6 +37,9 @@ namespace Nest
 		private IndexNameResolver IndexNameResolver { get; set; }
 		private TypeNameResolver TypeNameResolver { get; set; }
 		private PropertyNameResolver PropertyNameResolver { get; set; }
+
+		internal ConcurrentDictionary<Type, JsonContract> Contracts { get; }
+
 		public string DefaultIndex
 		{
 			get
@@ -51,6 +56,8 @@ namespace Nest
 			this.IndexNameResolver = new IndexNameResolver(this._connectionSettings);
 			this.TypeNameResolver = new TypeNameResolver(this._connectionSettings);
 			this.PropertyNameResolver = new PropertyNameResolver(this._connectionSettings);
+
+			this.Contracts = new ConcurrentDictionary<Type, JsonContract>();
 		}
 
 		public string PropertyPath(PropertyPathMarker marker)
