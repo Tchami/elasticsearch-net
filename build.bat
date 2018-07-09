@@ -1,4 +1,9 @@
 @echo off
+
+REM cdonnelly 2018-07-09: Restore packages
+IF EXIST paket.lock (call paket.bat restore)
+IF NOT EXIST paket.lock (call paket.bat install)
+
 REM we need nuget to install tools locally
 if not exist build\tools\nuget\nuget.exe (
     ECHO Nuget not found.. Downloading..
