@@ -2,6 +2,7 @@
 *.local.xml
 *.sln.docstates
 *.obj
+*.swp
 *.exe
 *.pdb
 *.user
@@ -34,6 +35,12 @@ _ReSharper*/
 _NCrunch*/
 [Tt]est[Rr]esult*
 
+.fake/*
+.fake
+packages/*
+paket.exe
+paket-files/*.cached
+
 build/*
 !build/tools
 !build/keys
@@ -45,8 +52,10 @@ build/tools/*
 !build/*.fsx
 !build/*.ps1
 !build/*.nuspec
+!build/*.png
+!build/*.targets
 !build/scripts
-!.paket/*.exe
+
 
 /dep/Newtonsoft.Json.4.0.2
 !docs/build
@@ -57,10 +66,17 @@ doc/Help
 *.ncrunchproject
 Cache
 YamlCache
+tests.yaml
 
 *.DS_Store
 *.sln.ide
-.idea
 
-packages
-.vs
+launchSettings.json
+# https://github.com/elastic/elasticsearch-net/pull/1822#issuecomment-183722698
+*.project.lock.json
+project.lock.json
+/src/.vs
+/src/.vs/*
+
+.idea/
+*.sln.iml
