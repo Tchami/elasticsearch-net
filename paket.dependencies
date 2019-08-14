@@ -14,7 +14,7 @@ nuget Microsoft.CSharp 4.3
 nuget Microsoft.NETCore.Platforms 1.1
 nuget Microsoft.NETCore.Targets 1.1
 nuget Moq 4.2.1312.1622
-nuget Newtonsoft.Json 11.0.2
+nuget Newtonsoft.Json 12.0.2
 nuget NUnit 2.6.4
 nuget RazorMachine 2.6.1
 nuget ShellProgressBar 1.0.0.0
